@@ -3,9 +3,7 @@ use ark_ff::Field;
 use ark_poly::{univariate::DensePolynomial, DenseUVPolynomial};
 use ark_std::Zero;
 
-mod utils;
-
-use utils::build_zero_polynomial;
+use crate::utils::build_zero_polynomial;
 
 pub struct KZG<E: Pairing> {
     pub g1: E::G1,
@@ -73,7 +71,7 @@ impl<E: Pairing> KZG<E> {
         lagrange_polynomial: &DensePolynomial<E::ScalarField>,
         z_values: Vec<E::ScalarField>,
     ) -> E::G1 {
-        let zero_polynomial = build_zero_polynomial::<E>(&z_values);
+        let zero_polynomial = build_zero_polynomial::<E::ScalarField>(&z_values);
         let q = &(polynomial - lagrange_polynomial) / &zero_polynomial;
         let mut pi = self.g1 * E::ScalarField::ZERO;
         for (i, coeff) in q.coeffs.iter().enumerate() {
