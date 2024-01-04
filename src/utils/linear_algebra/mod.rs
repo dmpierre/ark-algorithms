@@ -1,6 +1,5 @@
 use ark_ff::PrimeField;
-use std::ops::{Mul, Sub};
-
+use std::ops::{Add, Mul, Sub};
 
 #[derive(Clone, Debug)]
 pub struct Matrix<F: PrimeField> {
@@ -38,6 +37,13 @@ impl<F: PrimeField> Vector<F> {
         Self {
             elements: elements.clone(),
             size: elements.len(),
+        }
+    }
+
+    pub fn new_zero_vector(size: usize) -> Self {
+        Self {
+            elements: vec![F::zero(); size],
+            size,
         }
     }
 }
@@ -98,6 +104,19 @@ impl<F: PrimeField> Mul for Vector<F> {
     }
 }
 
+impl<F: PrimeField> Add for Vector<F> {
+    type Output = Vector<F>;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        assert_eq!(self.elements.len(), rhs.elements.len());
+        let mut res = vec![F::zero(); self.elements.len()];
+        for i in 0..self.elements.len() {
+            res[i] = self.elements[i] + rhs.elements[i];
+        }
+        Vector::new(&res)
+    }
+}
+
 impl<F: PrimeField> Vector<F> {
     pub fn is_zero_vector(&self) -> bool {
         for i in 0..self.elements.len() {
@@ -106,5 +125,13 @@ impl<F: PrimeField> Vector<F> {
             }
         }
         true
+    }
+
+    pub fn scalar_mul(&self, scalar: &F) -> Vector<F> {
+        let mut res = vec![F::zero(); self.elements.len()];
+        for i in 0..self.elements.len() {
+            res[i] = self.elements[i] * scalar;
+        }
+        Vector::new(&res)
     }
 }
