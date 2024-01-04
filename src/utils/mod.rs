@@ -1,8 +1,20 @@
 use ark_ff::PrimeField;
-use ark_poly::{univariate::DensePolynomial, DenseUVPolynomial};
+use ark_poly::{
+    univariate::DensePolynomial, DenseUVPolynomial, EvaluationDomain, GeneralEvaluationDomain,
+};
 
-pub mod linear_algebra;
 pub mod lagrange;
+pub mod linear_algebra;
+
+pub fn get_omega_domain<F: PrimeField>(n: usize) -> (GeneralEvaluationDomain<F>, Vec<F>) {
+    // Builds the domain consisting of n roots of unity in F
+    let omegas = GeneralEvaluationDomain::<F>::new(n).unwrap();
+    let mut domain_elements: Vec<F> = vec![];
+    for element in omegas.elements() {
+        domain_elements.push(element);
+    }
+    (omegas, domain_elements)
+}
 
 pub fn build_zero_polynomial<F: PrimeField>(roots: &Vec<F>) -> DensePolynomial<F> {
     // roots are the values at which the polynomial will be zero
