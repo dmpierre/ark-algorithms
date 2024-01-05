@@ -14,9 +14,8 @@ mod tests {
         // check the satisfiability of folded relaxed r1cs using folded witness
         let (a, b, c) = get_test_r1cs::<Fr>();
 
-        // simply folding instances where both witness are identical
-        let w_1 = get_test_satisfying_witness::<Fr>();
-        let w_2 = w_1.clone();
+        let w_1 = get_test_satisfying_witness::<Fr>(3);
+        let w_2 = get_test_satisfying_witness::<Fr>(5);
         let (u_1, u_2) = (Fr::ONE, Fr::ONE);
         let e_1 = Vector::<Fr>::new_zero_vector(a.num_rows); // a.dot(w) has dimensions a.num_rows. see below.
         let e_2 = e_1.clone();

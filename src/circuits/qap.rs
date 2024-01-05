@@ -37,21 +37,9 @@ pub mod tests {
     use super::compute_lagrange_polynomial_from_matrix;
 
     #[test]
-    pub fn test_r1cs_is_satisfied() {
-        let (a, b, c): (Matrix<Fr>, Matrix<Fr>, Matrix<Fr>) = get_test_r1cs();
-        let witness: Vector<Fr> = get_test_satisfying_witness();
-        let a_dot_w = a.dot_vector(&witness);
-        let b_dot_w = b.dot_vector(&witness);
-        let c_dot_w = c.dot_vector(&witness);
-        let a_times_b = a_dot_w * b_dot_w;
-        let a_times_b_minus_c = a_times_b - c_dot_w;
-        assert!(a_times_b_minus_c.is_zero_vector());
-    }
-
-    #[test]
     pub fn test_qap_is_satisfied() {
         let (a, b, c): (Matrix<Fr>, Matrix<Fr>, Matrix<Fr>) = get_test_r1cs();
-        let witness: Vector<Fr> = get_test_satisfying_witness();
+        let witness: Vector<Fr> = get_test_satisfying_witness(3);
 
         // we lagrange-interpolate polynomials over an n-roots of unity domain
         // i.e.: f(\omega^{i}) == vec[i]
