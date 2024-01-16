@@ -94,6 +94,22 @@ impl<E: Pairing> KZG<E> {
         lhs == rhs
     }
 
+    pub fn verify_no_g2_ops(
+        &self,
+        y: E::ScalarField,
+        z: E::ScalarField,
+        commitment: E::G1,
+        pi: E::G1,
+    ) -> bool {
+        let py = self.g1 * y;
+        let g2_neg = -self.g2;
+        let lhs_1 = E::pairing(pi, self.vk);
+        let lhs_2 = E::pairing(pi * z, g2_neg);
+        let lhs = lhs_1.0 * lhs_2.0;
+        let rhs = E::pairing(commitment - py, self.g2);
+        lhs == rhs.0
+    }
+
     pub fn verify_from_encrypted_y(
         &self,
         py: E::G1,
@@ -128,5 +144,32 @@ impl<E: Pairing> KZG<E> {
         let rhs = E::pairing(commitment - py, self.g2);
 
         lhs == rhs
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ark_bn254::{Bn254, Fr, G1Projective, G2Projective};
+    use ark_ff::UniformRand;
+    use ark_poly::{univariate::DensePolynomial, Polynomial};
+    use ark_std::test_rng;
+
+    #[test]
+    pub fn test_full_kzg() {
+        let mut rng = test_rng();
+        let degree = 10;
+        let tau = Fr::rand(&mut rng);
+        let g1 = G1Projective::rand(&mut rng);
+        let g2 = G2Projective::rand(&mut rng);
+        let mut kzg = KZG::<Bn254>::new(g1, g2, degree);
+        let polynomial: DensePolynomial<Fr> = DensePolynomial::rand(degree, &mut rng);
+        let _ = kzg.setup(tau);
+        let commitment = kzg.commit(&polynomial);
+        let z = Fr::rand(&mut rng);
+        let y = polynomial.evaluate(&z);
+        let pi = kzg.open(&polynomial, z, y);
+        assert!(kzg.verify(y, z, commitment, pi));
+        assert!(kzg.verify_no_g2_ops(y, z, commitment, pi));
     }
 }
