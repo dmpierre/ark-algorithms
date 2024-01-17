@@ -118,12 +118,9 @@ impl<E: Pairing> KZG<E> {
         pi: E::G1,
     ) -> bool {
         let py = self.g1 * y;
-        let g2_neg = -self.g2;
-        let lhs_1 = E::pairing(pi, self.vk);
-        let lhs_2 = E::pairing(pi * z, g2_neg);
-        let lhs = lhs_1.0 * lhs_2.0;
-        let rhs = E::pairing(-commitment + py, self.g2);
-        (lhs * rhs.0).is_one()
+        let lhs = E::pairing(pi, self.vk);
+        let rhs = E::pairing(pi * -z - commitment + py, self.g2);
+        (lhs.0 * rhs.0).is_one()
     }
 
     pub fn verify_from_encrypted_y(
