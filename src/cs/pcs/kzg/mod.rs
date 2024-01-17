@@ -1,5 +1,5 @@
 use ark_ec::pairing::Pairing;
-use ark_ff::Field;
+use ark_ff::{Field, One};
 use ark_poly::{univariate::DensePolynomial, DenseUVPolynomial};
 use ark_std::Zero;
 
@@ -110,6 +110,22 @@ impl<E: Pairing> KZG<E> {
         lhs == rhs.0
     }
 
+    pub fn verify_no_g2_ops_evm_opcode(
+        &self,
+        y: E::ScalarField,
+        z: E::ScalarField,
+        commitment: E::G1,
+        pi: E::G1,
+    ) -> bool {
+        let py = self.g1 * y;
+        let g2_neg = -self.g2;
+        let lhs_1 = E::pairing(pi, self.vk);
+        let lhs_2 = E::pairing(pi * z, g2_neg);
+        let lhs = lhs_1.0 * lhs_2.0;
+        let rhs = E::pairing(-commitment + py, self.g2);
+        (lhs * rhs.0).is_one()
+    }
+
     pub fn verify_from_encrypted_y(
         &self,
         py: E::G1,
@@ -171,5 +187,6 @@ mod tests {
         let pi = kzg.open(&polynomial, z, y);
         assert!(kzg.verify(y, z, commitment, pi));
         assert!(kzg.verify_no_g2_ops(y, z, commitment, pi));
+        assert!(kzg.verify_no_g2_ops_evm_opcode(y, z, commitment, pi));
     }
 }
