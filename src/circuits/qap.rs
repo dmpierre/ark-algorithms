@@ -2,7 +2,7 @@
 use ark_ff::PrimeField;
 use ark_poly::univariate::DensePolynomial;
 
-use crate::utils::lagrange::compute_lagrange_interpolation;
+use crate::utils::lagrange::compute_lagrange_interpolation_on_roots_of_unity;
 use crate::utils::linear_algebra::Matrix;
 
 pub fn compute_lagrange_polynomial_from_matrix<F: PrimeField>(
@@ -16,7 +16,7 @@ pub fn compute_lagrange_polynomial_from_matrix<F: PrimeField>(
             evals.push(mat.rows[j].elements[i]);
         }
         // lagrange polynomial for the i-th column
-        let lagrange_poly = compute_lagrange_interpolation(&evals);
+        let lagrange_poly = compute_lagrange_interpolation_on_roots_of_unity(&evals);
         lagrange_polys.push(lagrange_poly);
     }
     lagrange_polys
