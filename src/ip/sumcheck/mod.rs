@@ -1,7 +1,7 @@
 use ark_ff::PrimeField;
 use ark_poly::{
-    multivariate::{SparsePolynomial, SparseTerm, Term},
-    Polynomial, DenseMVPolynomial,
+    multivariate::{SparsePolynomial, SparseTerm},
+    Polynomial,
 };
 
 /// Utility types

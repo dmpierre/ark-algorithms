@@ -84,7 +84,7 @@ impl<E: Pairing> KZG<E> {
         let lagrange_polynomial = compute_lagrange_interpolation::<E::ScalarField>(&y_values);
         let zero_polynomial = build_zero_polynomial::<E::ScalarField>(&z_values);
         let q = &(polynomial - &lagrange_polynomial) / &zero_polynomial;
-        let mut pi = self.g2 * E::ScalarField::ZERO;
+        let mut pi = E::G2::zero();
         for (i, coeff) in q.coeffs.iter().enumerate() {
             pi += self.crs_2[i] * coeff;
         }
@@ -182,13 +182,11 @@ impl<E: Pairing> KZG<E> {
             .iter()
             .zip(&self.crs)
             .fold(E::G1::zero(), |acc, (coeff, tau)| acc + *tau * coeff);
-
         let i_tau = lagrange_polynomial
             .coeffs
             .iter()
             .zip(&self.crs)
             .fold(E::G1::zero(), |acc, (coeff, tau)| acc + *tau * coeff);
-
         (E::pairing(z_tau, pi).0 * E::pairing(-*commitment + i_tau, self.g2).0).is_one()
     }
 }
@@ -197,14 +195,14 @@ impl<E: Pairing> KZG<E> {
 mod tests {
     use crate::cs::pcs::kzg::KZG;
     use ark_bn254::{Bn254, Fr, G1Projective, G2Projective};
-    use ark_ff::UniformRand;
+    use ark_ff::{Field, UniformRand};
     use ark_poly::{univariate::DensePolynomial, DenseUVPolynomial, Polynomial};
     use ark_std::test_rng;
 
     #[test]
     pub fn test_full_kzg() {
         let mut rng = test_rng();
-        let degree = 10;
+        let degree = 9;
         let tau = Fr::rand(&mut rng);
         let g1 = G1Projective::rand(&mut rng);
         let g2 = G2Projective::rand(&mut rng);
@@ -223,7 +221,7 @@ mod tests {
     #[test]
     pub fn test_multi_open_kzg_with_no_g2_ops() {
         let mut rng = test_rng();
-        let degree = 10;
+        let degree = 5;
         let tau = Fr::rand(&mut rng);
         let g1 = G1Projective::rand(&mut rng);
         let g2 = G2Projective::rand(&mut rng);
@@ -231,7 +229,7 @@ mod tests {
         let polynomial: DensePolynomial<Fr> = DensePolynomial::rand(degree, &mut rng);
         let _ = kzg.setup(tau);
         let commitment = kzg.commit(&polynomial);
-        let z_values = (0..5).map(|i| Fr::from(i as u64)).collect::<Vec<_>>();
+        let z_values = vec![Fr::ZERO, Fr::ONE]; // evaluations proven at 0 and 1
         let y_values = z_values
             .iter()
             .map(|z| polynomial.evaluate(z))

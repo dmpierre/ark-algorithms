@@ -1,6 +1,6 @@
 use ark_ff::PrimeField;
+use ark_relations::r1cs::Matrix as ArkMatrix;
 use std::ops::{Add, Mul, Sub};
-
 #[derive(Clone, Debug)]
 pub struct Matrix<F: PrimeField> {
     pub rows: Vec<Vector<F>>,
@@ -29,6 +29,19 @@ impl<F: PrimeField> Matrix<F> {
             vec_rows.push(Vector::new(row));
         }
         Self::new(&vec_rows)
+    }
+
+    /// Arkworks matrices are sparse by default
+    /// Need to convert them to dense matrices
+    /// See: https://github.com/privacy-scaling-explorations/folding-schemes
+    pub fn new_from_ark_matrix(matrix: &ArkMatrix<F>, n_rows: usize, n_cols: usize) -> Self {
+        let mut r: Vec<Vec<F>> = vec![vec![F::zero(); n_cols]; n_rows];
+        for (row_i, row) in matrix.iter().enumerate() {
+            for &(value, col_i) in row.iter() {
+                r[row_i][col_i] = value;
+            }
+        }
+        Self::new_from_vecs(&r)
     }
 }
 

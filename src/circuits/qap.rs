@@ -25,7 +25,7 @@ pub fn compute_lagrange_polynomial_from_matrix<F: PrimeField>(
 #[cfg(test)]
 pub mod tests {
 
-    use crate::circuits::r1cs::{get_test_r1cs, get_test_satisfying_witness};
+    use crate::circuits::r1cs::utils::{get_test_r1cs, get_test_satisfying_witness};
     use crate::utils::get_omega_domain;
     use crate::utils::linear_algebra::{Matrix, Vector};
     use ark_ff::One;

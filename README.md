@@ -4,5 +4,9 @@
 
 ### `ark-algorithms`: a collection of cryptography algorithms implemented with `arkworks`
 
-TODO:
-- Add tests for `kzg`
+
+### Aknowledgements
+
+There is a bunch of utility functions that has been forked and adapted from various repos, such as:
+- [`arkworks`]()
+- [`folding-schemes`]()
