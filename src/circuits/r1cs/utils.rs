@@ -6,6 +6,9 @@ use crate::utils::linear_algebra::{Matrix, Vector};
 
 use super::R1CS;
 
+/// Type for an instance-witness tuple
+pub type R1CSInstanceWitness<F> = Vector<F>;
+
 /// a^2 + b^2 = c^2 where a, b are witnesses, and c is public io
 #[derive(Clone, Debug)]
 pub struct TestPythagoreCircuit<F: PrimeField> {
@@ -40,10 +43,10 @@ pub fn get_r1cs_from_cs<F: PrimeField>(
     Ok(r1cs)
 }
 
-/// Returns a z vector in (W, 1, x) format from a constraint system
+/// Returns the instance-witness vector in (W, 1, x) format
 pub fn get_z_from_cs<F: PrimeField>(
     circuit: impl ConstraintSynthesizer<F>,
-) -> Result<Vector<F>, String> {
+) -> Result<R1CSInstanceWitness<F>, String> {
     let cs = generate_constraint_system(circuit)?;
     let z = extract_z::<F>(&cs);
     Ok(z)
@@ -72,7 +75,7 @@ pub fn extract_r1cs<F: PrimeField>(cs: &ConstraintSystem<F>) -> R1CS<F> {
     }
 }
 
-pub fn extract_z<F: PrimeField>(cs: &ConstraintSystem<F>) -> Vector<F> {
+pub fn extract_z<F: PrimeField>(cs: &ConstraintSystem<F>) -> R1CSInstanceWitness<F> {
     let mut z = cs.instance_assignment.clone(); // starts with pub io
     let mut witness = cs.witness_assignment.clone();
     _ = z.append(&mut witness);

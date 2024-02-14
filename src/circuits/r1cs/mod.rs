@@ -6,7 +6,10 @@ use crate::utils::linear_algebra::{Matrix, Vector};
 /// Thanks Arnau! :)
 use ark_ff::PrimeField;
 
+use self::utils::R1CSInstanceWitness;
+
 /// A "regular" R1CS equation
+#[derive(Clone, Debug)]
 pub struct R1CS<F: PrimeField> {
     pub n_constraints: usize,
     pub n_witness: usize,
@@ -17,7 +20,7 @@ pub struct R1CS<F: PrimeField> {
 }
 
 impl<F: PrimeField> R1CS<F> {
-    pub fn is_satisfied(&self, z: &Vector<F>) -> bool {
+    pub fn is_satisfied(&self, z: &R1CSInstanceWitness<F>) -> bool {
         let az = self.a.dot_vector(z);
         let bz = self.b.dot_vector(z);
         let cz = self.c.dot_vector(z);
